@@ -70,6 +70,7 @@ loop {
     LoopDelay := LoopDelayMinEdit.Value
     SearchDelay := Random(SearchDelayMinEdit.Value, SearchDelayMaxEdit.Value)
     LoopDelay := Random(LoopDelayMinEdit.Value, LoopDelayMaxEdit.Value)
+    SetStoreCapslockMode(Off)
     while(X < 5)
     {
         if (!Active || SelectedWindow == 0)
