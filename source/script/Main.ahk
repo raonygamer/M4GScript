@@ -1,6 +1,7 @@
-﻿#SingleInstance off
+﻿; Made by rydev
+#SingleInstance off
 SetStoreCapsLockMode(false)
-MainGui := Gui(,"Farm Script by rydev",,)
+MainGui := Gui(,"Farm Script v1.0.2",,)
 MainGui.OnEvent("Close", CloseGui)
 CloseGui(*) {
     ExitApp 0
@@ -43,7 +44,9 @@ OnSelectGame(pControl, pInfo) {
 Active := false
 ToggleButton.OnEvent("Click", OnClickStartButton)
 
+#HotIf (SelectedWindow != 0 && WinExist(SelectedWindow) && DisableOnlyIfGameWindowActiveCheckBox.Value && WinActive("ahk_id" SelectedWindow)) || true
 Ins::OnHotkeyDisableButton
+#HotIf
 OnHotkeyDisableButton() {
     global SelectedWindow
     if (SelectedWindow == 0 || !WinExist(SelectedWindow)) {
