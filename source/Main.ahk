@@ -1,99 +1,121 @@
-﻿#MaxThreadsPerHotkey 2
-#SingleInstance off
-MainGui := Gui(, "M4G Script by raonyreis13",,)
-Mir4ProcessDropdown := MainGui.Add("DropDownList", "vMir4Choice w300", [])
-ToggleButton := MainGui.Add("Button", "Default w300", "Rodar")
+﻿#SingleInstance off
+SetStoreCapsLockMode(false)
+MainGui := Gui(,"Farm Script by rydev",,)
+MainGui.OnEvent("Close", CloseGui)
+CloseGui(*) {
+    ExitApp 0
+}
+
+GameDropdown := MainGui.Add("DropDownList", "vaMir4Choice w300", [])
+ToggleButton := MainGui.Add("Button", "Default w300 y+20", "Rodar")
+DisableOnlyIfGameWindowActiveCheckBox := MainGui.Add("CheckBox", "x10 vOnlyIfGameWindowActive Checked", "Parar com 'Insert' apenas se o jogo estiver em foco")
 
 SearchDelayMin := 2000
 SearchDelayMax := 2200
 LoopDelayMin := 4900
 LoopDelayMax := 5500
 
-SearchDelayMinEdit := MainGui.Add("Edit", "-Limit7 -Number x10", SearchDelayMin)
+SearchDelayMinEdit := MainGui.Add("Edit", "-Limit7 -Number x10 y+20", SearchDelayMin)
 MainGui.Add("Text", "yp", "Delay de busca mínimo")
-
 SearchDelayMaxEdit := MainGui.Add("Edit", "-Limit7 -Number x10", SearchDelayMax)
 MainGui.Add("Text", "yp", "Delay de busca máximo")
-
 LoopDelayMinEdit := MainGui.Add("Edit", "-Limit7 -Number x10", LoopDelayMin)
 MainGui.Add("Text", "yp", "Delay de loop mínimo")
-
 LoopDelayMaxEdit := MainGui.Add("Edit", "-Limit7 -Number x10", LoopDelayMax)
 MainGui.Add("Text", "yp", "Delay de loop máximo")
 
-MainGui.OnEvent("Close", CloseGui)
-CloseGui(*) {
-    ExitApp 0
-}
-
-WindowIDList := WinGetList("Mir4", , , )
-Mir4WindowIDS := Array()
-for windowId in WindowIDList {
-    WindowTitle := WinGetTitle(windowId)
-    WindowPID := WinGetPid(windowId)
-    Mir4WindowIDS.Push(windowId)
-    Mir4ProcessDropdown.Add([WindowTitle " : " WindowPID])
+GameWindows := WinGetList("Mir4")
+GameWindowHWNDs := Array()
+for hwnd in GameWindows {
+    WindowTitle := WinGetTitle(hwnd)
+    WindowPID := WinGetPid(hwnd)
+    GameWindowHWNDs.Push(hwnd)
+    GameDropdown.Add([WindowTitle " : " WindowPID])
 }
 
 SelectedWindow := 0
-OnSelectMir4(pControl, pInfo) {
+GameDropdown.OnEvent("Change", OnSelectGame)
+OnSelectGame(pControl, pInfo) {
     Global SelectedWindow
-    SelectedWindow := Mir4WindowIDS[Mir4ProcessDropdown.Value]
+    SelectedWindow := GameWindowHWNDs[GameDropdown.Value]
 }
-Mir4ProcessDropdown.OnEvent("Change", OnSelectMir4)
 
 Active := false
+ToggleButton.OnEvent("Click", OnClickStartButton)
+
+Ins::OnHotkeyDisableButton
+OnHotkeyDisableButton() {
+    global SelectedWindow
+    if (SelectedWindow == 0 || !WinExist(SelectedWindow)) {
+        MsgBox "Você precisa selecionar uma janela para rodar o script!"
+        return
+    }
+
+    if (!DisableOnlyIfGameWindowActiveCheckBox.Value) {
+        OnClickStartButton()
+    }
+    else if (WinActive("ahk_id" SelectedWindow)) {
+        OnClickStartButton()
+    }
+}
+
 OnClickStartButton(*) {
     Global Active
     Global SelectedWindow
     if (SelectedWindow == 0 && !Active) {
-        MsgBox "Você precisa selecionar um id de processo para rodar o script!"
+        MsgBox "Você precisa selecionar uma janela para rodar o script!"
         return
     }
     Active := !Active
     ToggleButton.Text := Active ? "Parar" : "Rodar"
 }
-ToggleButton.OnEvent("Click", OnClickStartButton)
+
 MainGui.Show
-loop {
+
+DoScriptWork() {
     Global Active
     Global SelectedWindow
     Global SearchDelayMinEdit
     Global SearchDelayMaxEdit
     Global LoopDelayMinEdit
     Global LoopDelayMaxEdit
-    if (!Active || SelectedWindow == 0)
-        continue
-    
-    X := 0
-    SearchDelay := SearchDelayMinEdit.Value
-    LoopDelay := LoopDelayMinEdit.Value
-    SearchDelay := Random(SearchDelayMinEdit.Value, SearchDelayMaxEdit.Value)
-    LoopDelay := Random(LoopDelayMinEdit.Value, LoopDelayMaxEdit.Value)
-    SetStoreCapslockMode(Off)
-    while(X < 5)
-    {
-        if (!Active || SelectedWindow == 0)
-            continue
-        Y := 0
-        ControlSend("{TAB}", SelectedWindow)
-        Sleep(300)
-        while(Y < 2)
-        {
-            if (!Active || SelectedWindow == 0)
-                continue
-            ControlSend("{PgDn}", SelectedWindow)
-            Sleep(300)
-            Y++	
+    try {
+        while (Active && SelectedWindow != 0 && WinExist("ahk_id" SelectedWindow)) {
+            X := 0
+            SearchDelay := Random(SearchDelayMinEdit.Value, SearchDelayMaxEdit.Value)
+            LoopDelay := Random(LoopDelayMinEdit.Value, LoopDelayMaxEdit.Value)
+            while(X < 5)
+            {
+                if (!Active || SelectedWindow == 0 || !WinExist("ahk_id" SelectedWindow))
+                    break
+                Y := 0
+                ControlSend("{TAB}", SelectedWindow)
+                Sleep(300)
+                while(Y < 2)
+                {
+                    if (!Active || SelectedWindow == 0 || !WinExist("ahk_id" SelectedWindow))
+                        break
+                    ControlSend("{PgDn}", SelectedWindow)
+                    Sleep(300)
+                    Y++	
+                }
+                ControlSend("{f down}{f up}", SelectedWindow)
+                Sleep(SearchDelay)
+                X++
+            }
+            ControlSend("{r down}{r up}", SelectedWindow)
+            Sleep(LoopDelay)
         }
-        ControlSend("{f down}{f up}", SelectedWindow)
-        Sleep(SearchDelay)
-        X++
     }
-    ControlSend("{r down}{r up}", SelectedWindow)
-    Sleep(LoopDelay)
 }
 
-Ins:: {
-    OnClickStartButton()
+loop {
+    if (!Active)
+        continue
+    if (SelectedWindow == 0 || !WinExist(SelectedWindow)) {
+        OnClickStartButton()
+        continue
+    }
+    
+    DoScriptWork()
 }
