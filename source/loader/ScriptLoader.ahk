@@ -10,5 +10,5 @@ if (FileExist("M4GScript.exe"))
         try
             Run "*RunAs M4GScript.exe"
         catch
-            MsgBox "Você precisa rodar o Loader com Administrador, ou aceitar o prompt UAC."
+            MsgBox "Você precisa rodar o Loader como Administrador, ou aceitar o prompt UAC."
 ExitApp
