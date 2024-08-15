@@ -62,7 +62,8 @@ OnClickStartButton(*) {
         return
     }
     Active := !Active
-    ControlSend("{esc down}{esc up}", SelectedWindow)
+    if (!Active)
+        ControlSend("{esc down}{esc up}", SelectedWindow)
     ToggleButton.Text := Active ? "Parar" : "Rodar"
 }
 MainGui.Show
