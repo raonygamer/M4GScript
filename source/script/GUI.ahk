@@ -1,13 +1,12 @@
 #Requires AutoHotkey v2.0
-MainGui := Gui(, "Farm Script v1.0.2", ,)
+MainGui := Gui(, "Farm Script v1.0.3", ,)
 MainGui.OnEvent("Close", CloseGui)
 CloseGui(*) {
     ExitApp 0
 }
 
 GameDropdown := MainGui.Add("DropDownList", "vaMir4Choice w300", [])
-ToggleButton := MainGui.Add("Button", "Default w300 y+20", "Rodar")
-DisableOnlyIfGameWindowActiveCheckBox := MainGui.Add("CheckBox", "x10 vOnlyIfGameWindowActive Checked", "Parar com 'Insert' apenas se o jogo estiver em foco")
+ToggleButton := MainGui.Add("Button", "Default w300", "Rodar")
 
 SearchDelayMin := 2000
 SearchDelayMax := 2200
@@ -23,7 +22,7 @@ MainGui.Add("Text", "yp", "Delay de loop mínimo")
 LoopDelayMaxEdit := MainGui.Add("Edit", "-Limit7 -Number x10", LoopDelayMax)
 MainGui.Add("Text", "yp", "Delay de loop máximo")
 
-GameWindows := WinGetList("")
+GameWindows := WinGetList("Mir4")
 GameWindowHWNDs := Array()
 for hwnd in GameWindows {
     WindowTitle := WinGetTitle(hwnd)
@@ -42,8 +41,8 @@ OnSelectGame(pControl, pInfo) {
 Active := false
 ToggleButton.OnEvent("Click", OnClickStartButton)
 
-#HotIf (SelectedWindow != 0 && WinExist(SelectedWindow) && DisableOnlyIfGameWindowActiveCheckBox.Value && WinActive("ahk_id" SelectedWindow)) || true
-Ins:: OnHotkeyDisableButton
+#HotIf (SelectedWindow != 0 && WinExist(SelectedWindow) && WinActive("ahk_id" SelectedWindow))
+Ins::OnHotkeyDisableButton
 #HotIf
 OnHotkeyDisableButton() {
     global SelectedWindow
@@ -52,12 +51,7 @@ OnHotkeyDisableButton() {
         return
     }
 
-    if (!DisableOnlyIfGameWindowActiveCheckBox.Value) {
-        OnClickStartButton()
-    }
-    else if (WinActive("ahk_id" SelectedWindow)) {
-        OnClickStartButton()
-    }
+    OnClickStartButton()
 }
 
 OnClickStartButton(*) {
@@ -68,6 +62,7 @@ OnClickStartButton(*) {
         return
     }
     Active := !Active
+    ControlSend("{esc down}{esc up}", SelectedWindow)
     ToggleButton.Text := Active ? "Parar" : "Rodar"
 }
 MainGui.Show

@@ -1,7 +1,9 @@
 ﻿; Made by rydev
 #SingleInstance off
 #Include GUI.ahk
-#include Kernel32.ahk
+#Include Kernel32.ahk
+#Include Game.ahk
+
 SetStoreCapsLockMode(false)
 DoScriptWork() {
     Global Active
@@ -30,10 +32,14 @@ DoScriptWork() {
                     Sleep(300)
                     Y++	
                 }
+                if (!Active || SelectedWindow == 0 || !WinExist("ahk_id" SelectedWindow))
+                    break
                 ControlSend("{f down}{f up}", SelectedWindow)
                 Sleep(SearchDelay)
                 X++
             }
+            if (!Active || SelectedWindow == 0 || !WinExist("ahk_id" SelectedWindow))
+                break
             ControlSend("{r down}{r up}", SelectedWindow)
             Sleep(LoopDelay)
         }
