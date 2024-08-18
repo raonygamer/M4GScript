@@ -10,42 +10,40 @@ SetStoreCapsLockMode(false)
 StartFarmingRoutine() {
     Global ScriptWindow
     loop {
-        if (!CanRun()) {
+        if (!CanRun() && FarmingActive) {
             ScriptWindow.DisableFarmingScript()
             continue
         }
-        while (CanRun()) {
-            IterationCount := 0
-            AttackDelay := Random(ScriptWindow.MinAttackTime.Value, ScriptWindow.MaxAttackTime.Value)
-            while (IterationCount < 5) {
-                AttackCount := 0
-                if (!CanRun())
-                    break
-                ControlSend("{TAB}", SelectedWindow)
-                Sleep(300)
-                if (!CanRun())
-                    break
-                while (AttackCount < 2) {
-                    if (!CanRun())
-                        break
-                    ControlSend("{PgDn}", SelectedWindow)
-                    Sleep(300)
-                    if (!CanRun())
-                        break
-                    AttackCount++
-                }
-                if (!CanRun())
-                    break
-                ControlSend("{f down}{f up}", SelectedWindow)
-                Sleep(AttackDelay)
-                if (!CanRun())
-                    break
-                IterationCount++
-            }
-            if (!CanRun())
+        IterationCount := 0
+        AttackDelay := Random(ScriptWindow.MinAttackTime.Value, ScriptWindow.MaxAttackTime.Value)
+        while (IterationCount < 5) {
+            AttackCount := 0
+            if (!CanRun() || ScriptWindow.OnlyUltCheck.Value)
                 break
-            ControlSend("{r down}{r up}", SelectedWindow)
+            ControlSend("{TAB}", SelectedWindow)
+            Sleep(300)
+            if (!CanRun() || ScriptWindow.OnlyUltCheck.Value)
+                break
+            while (AttackCount < 2) {
+                if (!CanRun() || ScriptWindow.OnlyUltCheck.Value)
+                    break
+                ControlSend("{PgDn}", SelectedWindow)
+                Sleep(300)
+                if (!CanRun() || ScriptWindow.OnlyUltCheck.Value)
+                    break
+                AttackCount++
+            }
+            if (!CanRun() || ScriptWindow.OnlyUltCheck.Value)
+                break
+            ControlSend("{f down}{f up}", SelectedWindow)
             Sleep(AttackDelay)
+            if (!CanRun() || ScriptWindow.OnlyUltCheck.Value)
+                break
+            IterationCount++
         }
+        if (!CanRun())
+            continue
+        ControlSend("{r down}{r up}", SelectedWindow)
+        Sleep(AttackDelay)
     }
 }

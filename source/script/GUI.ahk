@@ -10,6 +10,7 @@ class ScriptGui {
     GameSelector := this.MainGui.AddListView("vGameSelector w300 Checked", ["Título                ", "ID do Processo"])
     GameWindowList := []
     RunButton := this.MainGui.AddButton("Disabled w300", "Rodar")
+    OnlyUltCheck := this.MainGui.AddCheckbox("", "Executar apenas mov. letal")
     MinAttackTimeText := this.MainGui.AddText("Section x10 Center", "Delay de ataque mínimo  ")
     MinAttackTime := this.MainGui.AddSlider("Range200-3200 ys ToolTipBottom", DefaultMinAttackTime)
     MaxAttackTimeText := this.MainGui.AddText("Section x10 Center", "Delay de ataque máximo  ")
